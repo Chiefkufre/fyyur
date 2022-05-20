@@ -25,7 +25,6 @@ itsdangerous @ file:///tmp/build/80754af9/itsdangerous_1621432558163/work
 Jinja2 @ file:///opt/conda/conda-bld/jinja2_1647436528585/work
 Mako==1.2.0
 MarkupSafe @ file:///C:/ci/markupsafe_1621528502553/work
-psycopg2==2.9.3
 psycopg2-binary==2.9.3
 pycparser==2.21
 python-dateutil==2.6.0

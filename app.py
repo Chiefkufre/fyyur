@@ -13,7 +13,7 @@ from logging import Formatter, FileHandler
 from flask_wtf import Form
 from forms import *
 from flask_migrate import Migrate
-from models import Artist, ArtistGenre, Venue, VenueGenre, Show
+
 #----------------------------------------------------------------------------#
 # App Config.
 #----------------------------------------------------------------------------#
@@ -43,7 +43,7 @@ class ArtistGenre(db.Model):
   
 
 
-class Artist(db.Model):
+class Artists(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120), nullable=False)
     email = db.Column(db.String, nullable=False, unique=True )
@@ -54,7 +54,7 @@ class Artist(db.Model):
     venues = db.relationship("Venue", secondary="shows", backref=db.backref("artists", lazy=True))
     seeking_venue = db.Column(db.Boolean, nullable=True, default=False)
     seeking_description = db.Column(db.String(), nullable=True, default="")
-    genres = db.relationship("Artist_Genre", backref="artist", lazy=True)
+    genres = db.relationship("Artist_Genre", backref=db.backref("artists", lazy=True))
     image_link = db.Column(
         db.String(500),
         nullable=True,
@@ -75,11 +75,11 @@ class VenueGenre(db.Model):
     genre = db.Column(db.String(50), nullable=False)
     
     def __repr__(self):
-        return f"<Venue_Genre venue_id:{self.venue_id} genre: {self.genre}>"
+        return f"<VenueGenre venue_id:{self.venue_id} genre: {self.genre}>"
 
 
 
-class Venue(db.Model):
+class Venues(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
     email = db.Column(db.String, nullable=False, unique=True )
@@ -87,7 +87,7 @@ class Venue(db.Model):
     state = db.Column(db.String(120), nullable=False)
     address = db.Column(db.String(120), nullable=False)
     phone = db.Column(db.String(120), nullable=True)
-    genres = db.relationship("Venue_Genre", passive_deletes=True, backref="venue", lazy=True)
+    genres = db.relationship("VenueGenre", passive_deletes=True, backref="venue", lazy=True)
     seeking_talent = db.Column(db.Boolean, nullable=True, default=False)
     website = db.Column(db.String(120), nullable=True)
     seeking_description = db.Column(db.String(120), nullable=True)

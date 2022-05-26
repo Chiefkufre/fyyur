@@ -330,31 +330,15 @@ def search_venues():
   
   response["data"] = []
   response["count"] = len(venues)
- 
-
-  for venue in venues:
-      # search = {
-      #   "id": venue.id,
-      #   "name": venue.name,
-      #   "upcoming_shows": upcoming_shows,
-      #   'num_upcoming_shows':len(upcoming_shows)
-        
-      # }
   
-      upcoming_shows = 0
-      
-      for show in venue.shows:
-          if show.start_time > datetime.now():
-              upcoming_shows = upcoming_shows + 1
-              search_data = {
-                "id": venue.id,
-                "name": venue.name,
-                "num_upcoming_shows": upcoming_shows
-                }
-              response["data"].append(search_data)
-              
-      # search["upcoming_shows"] = upcoming_shows,
-      # search['num_upcoming_shows'] = len(upcoming_shows)
+  
+  for show in venues:
+    search = {
+        "id": show.id,
+        "name": show.name,
+    }
+    response["data"].append(search)
+
       
       
   return render_template('pages/search_venues.html', results=response, search_term=search)
@@ -497,9 +481,9 @@ def create_artist_submission():
 @app.route('/artists/<int:artist_id>/edit', methods=['GET'])
 def edit_artist(artist_id):
   form = ArtistForm()
-  artist= Artists.query.all()
-  
-  return render_template('forms/edit_artist.html', form=form, artist=artist)
+  artist = Artists.query.get_or_404(artist_id)
+  #  This isn't working. I need everything i could.
+  return render_template('forms/edit_artist.html',form=form, artist=artist)
 
 @app.route('/artists/<int:artist_id>/edit', methods=['POST'])
 def edit_artist_submission(artist_id):
@@ -548,7 +532,7 @@ def search_artists():
   
   artists = Artists.query.filter( Artists.name.ilike(f"%{search_term}%") | 
                                  Artists.city.ilike(f"%{search_term}%") |
-                                 Artists.state.ilike(f"%{search_term}%" ).all())
+                                 Artists.state.ilike(f"%{search_term}%")).all()
                                  
   response = {"count": len(artists),"data": [] }
 

@@ -321,25 +321,42 @@ def delete_venue(venue_id):
 def search_venues():
   
   search = request.form.get('search_term', '')
-  
-  
   response = {}
+  venues = list(Venues.query.filter(
+      Venues.name.ilike(f"%{search}%") |
+      Venues.state.ilike(f"%{search}%") |
+      Venues.city.ilike(f"%{search}%") 
+  ).all())
   
-  venues = list(Venues.query.filter
-                (Venues.name.ilike(f"%{search}%"),
-                 Venues.state.ilike(f"%{search}%"),
-                 Venues.city.ilike(f"%{search}%")
-                 ).all())
-  response["count"] = len(venues)
   response["data"] = []
+  response["count"] = len(venues)
+ 
 
   for venue in venues:
-      individual_venue = {
-          "id": venue.id,
-          "name": venue.name,
-          "num_upcoming_shows": len(list(filter(lambda x: x.start_time > datetime.now(), venue.shows)))
-      }
-      response["data"].append(individual_venue)
+      # search = {
+      #   "id": venue.id,
+      #   "name": venue.name,
+      #   "upcoming_shows": upcoming_shows,
+      #   'num_upcoming_shows':len(upcoming_shows)
+        
+      # }
+  
+      upcoming_shows = 0
+      
+      for show in venue.shows:
+          if show.start_time > datetime.now():
+              upcoming_shows = upcoming_shows + 1
+              search_data = {
+                "id": venue.id,
+                "name": venue.name,
+                "num_upcoming_shows": upcoming_shows
+                }
+              response["data"].append(search_data)
+              
+      # search["upcoming_shows"] = upcoming_shows,
+      # search['num_upcoming_shows'] = len(upcoming_shows)
+      
+      
   return render_template('pages/search_venues.html', results=response, search_term=search)
 
 
@@ -528,28 +545,26 @@ def search_artists():
   # seach for "A" should return "Guns N Petals", "Matt Quevado", and "The Wild Sax Band".
   # search for "band" should return "The Wild Sax Band".
   search_term = request.form.get('search_term', '')
-  artists = Artists.query.filter(
-      Artists.name.ilike(f"%{search_term}%") |
-      Artists.city.ilike(f"%{search_term}%") |
-      Artists.state.ilike(f"%{search_term}%")
-  ).all()
-  response = {
-      "count": len(artists),
-      "data": []
-  }
+  
+  artists = Artists.query.filter( Artists.name.ilike(f"%{search_term}%") | 
+                                 Artists.city.ilike(f"%{search_term}%") |
+                                 Artists.state.ilike(f"%{search_term}%" ).all())
+                                 
+  response = {"count": len(artists),"data": [] }
 
   for artist in artists:
-      temp = {}
-      temp["name"] = artist.name
-      temp["id"] = artist.id
+      search = {}
+      search["name"] = artist.name
+      search["id"] = artist.id
 
       upcoming_shows = 0
+      
       for show in artist.shows:
           if show.start_time > datetime.now():
               upcoming_shows = upcoming_shows + 1
-      temp["upcoming_shows"] = upcoming_shows
+      search["upcoming_shows"] = upcoming_shows
 
-      response["data"].append(temp)
+      response["data"].append(search)
   return render_template('pages/search_artists.html', results=response, search_term=request.form.get('search_term', ''))
 
 # delete artists

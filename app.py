@@ -9,7 +9,8 @@ import babel
 from datetime import datetime
 from flask import Flask, render_template, request, Response, flash, redirect, url_for
 from flask_moment import Moment
-from flask_sqlalchemy import SQLAlchemy
+from models import db, Artists, Venues, Show
+# from flask_sqlalchemy import SQLAlchemy
 import logging
 from logging import Formatter, FileHandler
 from flask_wtf import Form
@@ -23,58 +24,60 @@ from flask_migrate import Migrate
 app = Flask(__name__)
 moment = Moment(app)
 app.config.from_object('config')
-db = SQLAlchemy(app)
+db.init_app(app)
+# db = SQLAlchemy(app)
 
 # TODO: connect to a local postgresql database
 migrate = Migrate(app, db)
 
 
-#----------------------------------------------------------------------------#
-# Models
-#----------------------------------------------------------------------------#
+# #----------------------------------------------------------------------------#
+# # Models
+# #----------------------------------------------------------------------------#
 
-class Artists(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(120), nullable=False)
-    email = db.Column(db.String(120), nullable=False, unique=True )
-    city = db.Column(db.String(120), nullable=False)
-    state = db.Column(db.String(120), nullable=False)
-    phone = db.Column(db.String(120), nullable=False)
-    genres = db.Column(db.String(100), nullable=False)
-    facebook_link = db.Column(db.String(120), nullable=True)
-    image_link = db.Column(db.String(500), nullable=True,
-        default="https://images.unsplash.com/photo-1549213783-8284d0336c4f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=300&q=80",
-    )
-    website_link = db.Column(db.String(50), nullable=True)
-    seeking_venue = db.Column(db.Boolean, nullable=True, default=False)
-    seeking_description = db.Column(db.String(200), nullable=True, default="none")
-    shows = db.relationship("Show", backref="Artists", lazy=False, cascade="all, delete-orphan")
+# class Artists(db.Model):
+#     id = db.Column(db.Integer, primary_key=True)
+#     name = db.Column(db.String(120), nullable=False)
+#     email = db.Column(db.String(120), nullable=False, unique=True )
+#     city = db.Column(db.String(120), nullable=False)
+#     state = db.Column(db.String(120), nullable=False)
+#     phone = db.Column(db.String(120), nullable=False)
+#     genres = db.Column(db.ARRAY(db.String), nullable=False)
+#     facebook_link = db.Column(db.String(120), nullable=True)
+#     image_link = db.Column(db.String(500), nullable=True,
+#         default="https://images.unsplash.com/photo-1549213783-8284d0336c4f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=300&q=80",
+#     )
+#     website_link = db.Column(db.String(50), nullable=True)
+#     seeking_venue = db.Column(db.Boolean, nullable=True, default=False)
+#     seeking_description = db.Column(db.String(200), nullable=True, default="none")
+#     shows = db.relationship("Show", backref="Artists", lazy=False, cascade="all, delete-orphan")
     
    
    
-class Venues(db.Model):
-  id = db.Column(db.Integer, primary_key=True)
-  name = db.Column(db.String, nullable=False)
-  email = db.Column(db.String, nullable=False, unique=True )
-  city = db.Column(db.String(120), nullable=False)
-  state = db.Column(db.String(120), nullable=False)
-  address = db.Column(db.String(120), nullable=False)
-  phone = db.Column(db.String(120), nullable=True)
-  genres = db.Column(db.String(50), nullable=False)
-  seeking_talent = db.Column(db.Boolean, nullable=True, default=False)
-  website = db.Column(db.String(120), nullable=True)
-  seeking_description = db.Column(db.String(120), nullable=True)
-  shows = db.relationship("Show", backref="Venues", lazy=False, cascade="all, delete-orphan")
-  image_link = db.Column(db.String(500), nullable=True,
-      default="https://images.unsplash.com/photo-1543900694-133f37abaaa5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=60",
-  )
-  facebook_link = db.Column(db.String(120), nullable=True, default="www.facebook.com/samuelkufrewillie")
+# class Venues(db.Model):
+#   id = db.Column(db.Integer, primary_key=True)
+#   name = db.Column(db.String, nullable=False)
+#   email = db.Column(db.String, nullable=False, unique=True )
+#   city = db.Column(db.String(120), nullable=False)
+#   state = db.Column(db.String(120), nullable=False)
+#   address = db.Column(db.String(120), nullable=False)
+#   phone = db.Column(db.String(120), nullable=True)
+#   genres = db.Column(db.ARRAY(db.String)
+#                      , nullable=False)
+#   seeking_talent = db.Column(db.Boolean, nullable=True, default=False)
+#   website = db.Column(db.String(120), nullable=True)
+#   seeking_description = db.Column(db.String(120), nullable=True)
+#   shows = db.relationship("Show", backref="Venues", lazy=False, cascade="all, delete-orphan")
+#   image_link = db.Column(db.String(500), nullable=True,
+#       default="https://images.unsplash.com/photo-1543900694-133f37abaaa5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=60",
+#   )
+#   facebook_link = db.Column(db.String(120), nullable=True, default="www.facebook.com/samuelkufrewillie")
     
 
-class Show(db.Model):
-    artist_id = db.Column(db.Integer, db.ForeignKey("artists.id"), primary_key=True)
-    venue_id = db.Column(db.Integer, db.ForeignKey("venues.id", ondelete="CASCADE"), primary_key=True)
-    start_time = db.Column(db.DateTime, nullable=False)
+# class Show(db.Model):
+#     artist_id = db.Column(db.Integer, db.ForeignKey("artists.id"), primary_key=True)
+#     venue_id = db.Column(db.Integer, db.ForeignKey("venues.id", ondelete="CASCADE"), primary_key=True)
+#     start_time = db.Column(db.DateTime, nullable=False)
     
 
 
@@ -145,7 +148,8 @@ def show_venue(venue_id):
     
   # for past shows and events
   # events = Show.query.all()
-  event_before_now = Show.query.filter(Show.start_time < datetime.now()).all()
+  event_before_now = db.session.query(Show).join(Venues).filter(Show.artist_id==artist_id).filter(Show.start_time<datetime.now()).all() 
+  # Show.query.filter(Show.start_time < datetime.now()).all()
   past_shows = []
   for event in  event_before_now:
     artist = Artists.query.get(event.artist_id)
@@ -158,7 +162,7 @@ def show_venue(venue_id):
     past_shows.append(artist_data)
     
   # for upcoming shows and events
-  new_upcoming_shows =  Show.query.filter(Show.start_time >= datetime.now()).all()
+  new_upcoming_shows = db.session.query(Show).join(Venues).filter(Show.artist_id==artist_id).filter(Show.start_time>datetime.now()).all()
   upcoming_shows = []
   for show in new_upcoming_shows:
     artist = Artists.query.get(show.artist_id)

@@ -1,7 +1,7 @@
 from datetime import datetime
 from flask_wtf import Form
 from wtforms import StringField, SelectField, SelectMultipleField, DateTimeField, BooleanField
-from wtforms.validators import DataRequired, AnyOf, URL, Email
+from wtforms.validators import DataRequired, AnyOf, URL, Email, EqualTo, Regexp
 
 class ShowForm(Form):
     artist_id = StringField('artist_id')
@@ -68,7 +68,8 @@ class VenueForm(Form):
         ]
     )
     address = StringField('address', validators=[DataRequired()])
-    phone = StringField('Phone')
+    # phone number validation for a Nigerian phone number
+    phone = StringField('Phone', validators=[DataRequired(), Regexp("(0|234)?[-\s]?[7-9][0-9]{9}", message='Enter a valid Nigerian phone number')])
     image_link = StringField('image_link')
     genres = SelectMultipleField(
         # TODO implement enum restriction
@@ -96,7 +97,7 @@ class VenueForm(Form):
         ]
     )
     facebook_link = StringField('facebook_link', validators=[URL()])
-    website_link = StringField('website_link')
+    website_link = StringField('website_link' ,validators=[URL()])
     seeking_talent = BooleanField( 'seeking_talent' )
     seeking_description = StringField('seeking_description')
 
@@ -161,10 +162,8 @@ class ArtistForm(Form):
             ('WY', 'WY'),
         ]
     )
-    phone = StringField(
-        # TODO implement validation logic for state
-        'phone'
-    )
+     # phone number validation for a Nigerian phone number
+    phone = StringField('Phone', validators=[DataRequired(), Regexp("(0|234)?[-\s]?[7-9][0-9]{9}", message='Enter a valid Nigerian phone number')])
     image_link = StringField('image_link')
     genres = SelectMultipleField('genres', validators=[DataRequired()],
         choices=[
@@ -194,7 +193,7 @@ class ArtistForm(Form):
         'facebook_link', validators=[URL()]
      )
 
-    website_link = StringField('website_link')
+    website_link = StringField('website_link',validators=[URL()])
     seeking_venue = BooleanField( 'seeking_venue' )
     seeking_description = StringField('seeking_description')
 

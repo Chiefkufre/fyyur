@@ -46,6 +46,7 @@ class Venues(db.Model):
     
 
 class Show(db.Model):
-    artist_id = db.Column(db.Integer, db.ForeignKey("artists.id"), primary_key=True)
-    venue_id = db.Column(db.Integer, db.ForeignKey("venues.id", ondelete="CASCADE"), primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
+    artist_id = db.Column(db.Integer, db.ForeignKey("artists.id"))
+    venue_id = db.Column(db.Integer, db.ForeignKey("venues.id", ondelete="CASCADE"))
     start_time = db.Column(db.DateTime, nullable=False)
